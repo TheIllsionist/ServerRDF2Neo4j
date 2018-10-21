@@ -12,6 +12,7 @@ import java.io.File;
  * TODO:后面可以通过延迟初始化占位类模式实现
  */
 public class SingleGraphInstance {
+
     private final static String dbDir = "";  //数据库实例文件夹的路径
     private volatile static GraphDatabaseService graphDb = null;  //注意该引用一定要用volatile变量修饰
 
