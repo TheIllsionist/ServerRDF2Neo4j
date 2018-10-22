@@ -4,6 +4,7 @@ import Cache.ClassCache;
 import Importer.ClassImporter;
 import org.apache.jena.ontology.OntClass;
 import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
 import org.neo4j.graphdb.*;
@@ -69,13 +70,22 @@ public class ApiClassImporter implements ClassImporter {
                     tmpRel.setProperty("uri",RDFS.comment.getURI());
                     tmpRel.setProperty("preLabel",UriUtil.getPreLabel(RDFS.comment.getURI()));
                 }
-                tx.success();
+                tx.success();  //提交事务
             }
             ClassCache.addClass(preLabel);
         }
         return true;
     }
 
+    /**
+     * 将两个本体类之间的关系导入Neo4j数据库
+     * 多线程将关系写知识库和写缓存,由于方法中存在“先检查-后执行”竞态条件,因此必须要保证每个线程所写入的类关系集间互不相交才可保证不重复写
+     * @param class1
+     * @param class2
+     * @param rel
+     * @return
+     * @throws Exception
+     */
     @Override
     public boolean loadClassRelIn(OntClass class1, OntClass class2, Words rel) throws Exception {
         String fPre = UriUtil.getPreLabel(class1.getURI());
@@ -85,22 +95,36 @@ public class ApiClassImporter implements ClassImporter {
             return false;
         //类已存在,但关系不存在,则先写数据库再写缓存
         if(!ClassCache.relExisted(fPre,lPre)){
+            int tag = -1;
             try(Transaction tx = graphDb.beginTx()){
-                Node clsNode1 = graphDb.findNode(Label.label("OWL_CLASS"),"preLabel",fPre);
-                Node clsNode2 = graphDb.findNode(Label.label("OWL_CLASS"),"preLabel",lPre);
+                Node clsNode1 = graphDb.findNode(Label.label("OWL_CLASS"),"preLabel",fPre); //查找类Node1
+                Node clsNode2 = graphDb.findNode(Label.label("OWL_CLASS"),"preLabel",lPre); //查找类Node2
                 Relationship relship = null;
                 switch (rel){
                     case RDFS_SUBCLASSOF:{
                         relship = clsNode1.createRelationshipTo(clsNode2,RelTypes.RDFS_SUBCLASSOF);
                         relship.setProperty("uri",RDFS.subClassOf.getURI());
                         relship.setProperty("preLabel",UriUtil.getPreLabel(RDFS.subClassOf.getURI()));
+                        tag = 1;
                     }break;
                     case OWL_EQCLASS:{
                         relship = clsNode1.createRelationshipTo(clsNode2,RelTypes.OWL_EQCLASS);
-                    }
+                        relship.setProperty("uri", OWL.equivalentClass.getURI());
+                        relship.setProperty("preLabel", UriUtil.getPreLabel(OWL.equivalentClass.getURI()));
+                        tag = 2;
+                    }break;
+                    case OWL_DJCLASS:{
+                        relship = clsNode1.createRelationshipTo(clsNode2,RelTypes.OWL_DJCLASS);
+                        relship.setProperty("uri",OWL.disjointWith.getURI());
+                        relship.setProperty("preLabel",UriUtil.getPreLabel(OWL.disjointWith.getURI()));
+                        tag = 3;
+                    }break;
                 }
+                tx.success();  //提交事务
             }
+            ClassCache.addRelation(fPre,lPre,tag);
         }
+        return true;
     }
 
 }
