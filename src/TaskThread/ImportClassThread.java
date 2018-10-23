@@ -1,8 +1,7 @@
 package TaskThread;
 
+import Importer.ClassImporter;
 import org.apache.jena.ontology.OntClass;
-import rdfImporter.ClassImporter;
-
 import java.util.Queue;
 
 /**

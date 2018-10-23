@@ -1,8 +1,8 @@
 package TaskThread;
 
+import Importer.ClassImporter;
 import Model.Relation;
 import org.apache.jena.ontology.OntClass;
-import rdfImporter.ClassImporter;
 import util.Words;
 
 import java.util.Queue;

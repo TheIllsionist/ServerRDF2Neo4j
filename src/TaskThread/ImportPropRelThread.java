@@ -1,10 +1,9 @@
 package TaskThread;
 
+import Importer.PropertyImporter;
 import Model.Relation;
 import org.apache.jena.ontology.OntProperty;
-import rdfImporter.PropImporter;
 import util.Words;
-
 import java.util.Queue;
 
 /**
@@ -13,9 +12,9 @@ import java.util.Queue;
 public class ImportPropRelThread implements Runnable{
 
     private final Queue<Relation<OntProperty, Words>> rels;
-    private final PropImporter importer;
+    private final PropertyImporter importer;
 
-    public ImportPropRelThread(Queue<Relation<OntProperty, Words>> rels, PropImporter importer){
+    public ImportPropRelThread(Queue<Relation<OntProperty, Words>> rels, PropertyImporter importer){
         this.rels = rels;
         this.importer = importer;
     }

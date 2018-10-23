@@ -1,8 +1,7 @@
 package TaskThread;
 
+import Importer.PropertyImporter;
 import org.apache.jena.ontology.OntProperty;
-import rdfImporter.PropImporter;
-
 import java.util.Queue;
 
 /**
@@ -11,9 +10,9 @@ import java.util.Queue;
 public class ImportPropThread implements Runnable{
 
     private final Queue<OntProperty> props;  //一批属性导入任务
-    private final PropImporter importer;  //导入器
+    private final PropertyImporter importer;  //导入器
 
-    public ImportPropThread(Queue<OntProperty> props, PropImporter importer){
+    public ImportPropThread(Queue<OntProperty> props, PropertyImporter importer){
         this.props = props;
         this.importer = importer;
     }

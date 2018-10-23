@@ -1,8 +1,7 @@
 package TaskThread;
 
+import Importer.InsImporter;
 import org.apache.jena.ontology.Individual;
-import rdfImporter.InsImporter;
-
 import java.util.Queue;
 
 /**
