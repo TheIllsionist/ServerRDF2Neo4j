@@ -6,10 +6,9 @@ import org.apache.jena.ontology.OntClass;
 import org.apache.jena.ontology.OntProperty;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.util.iterator.ExtendedIterator;
+import org.apache.jena.vocabulary.OWL;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.RDFS;
-import org.neo4j.driver.v1.StatementResult;
-import org.neo4j.driver.v1.TransactionWork;
 import org.neo4j.graphdb.*;
 import util.UriUtil;
 import util.Words;
@@ -120,16 +119,30 @@ public class ApiPropertyImporter implements PropertyImporter {
                         relation = propNode1.createRelationshipTo(propNode2,RelTypes.RDFS_SUBPROPERTYOF);
                         relation.setProperty("uri",RDFS.subPropertyOf.getURI());
                         relation.setProperty("preLabel",UriUtil.getPreLabel(RDFS.subPropertyOf.getURI()));
-                    }
+                        tag = 1;
+                    }break;
+                    case OWL_EQPROPERTY:{
+                        relation = propNode1.createRelationshipTo(propNode2,RelTypes.OWL_EQPROPERTY);
+                        relation.setProperty("uri", OWL.equivalentProperty.getURI());
+                        relation.setProperty("preLabel",UriUtil.getPreLabel(OWL.equivalentProperty.getURI()));
+                        tag = 2;
+                    }break;
+                    case OWL_DJPROPERTY:{
+                        relation = propNode1.createRelationshipTo(propNode2,RelTypes.OWL_DJPROPERTY);
+                        relation.setProperty("uri",OWL.disjointWith.getURI());
+                        relation.setProperty("preLabel",UriUtil.getPreLabel(OWL.disjointWith.getURI()));
+                        tag = 3;
+                    }break;
+                    case OWL_IVPROPERTY:{
+                        relation = propNode1.createRelationshipTo(propNode2,RelTypes.OWL_IVPROPERTY);
+                        relation.setProperty("uri",OWL.inverseOf.getURI());
+                        relation.setProperty("preLabel",UriUtil.getPreLabel(OWL.inverseOf.getURI()));
+                        tag = 4;
+                    }break;
                 }
+                tx.success();  //提交事务
             }
-            switch (rel){
-                case RDFS_SUBPROPERTYOF : tag = 1;break;
-                case OWL_EQPROPERTY : tag = 2;break;
-                case OWL_DJPROPERTY : tag = 3;break;
-                case OWL_IVPROPERTY : tag = 4;break;
-            }
-            CypherPropCache.addRelation(fPre,lPre,tag); //写缓存
+            PropertyCache.addRelation(fPre,lPre,tag); //写缓存
         }
         //无论是已经存在还是已经写入,返回true
         return true;
