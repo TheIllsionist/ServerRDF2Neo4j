@@ -23,7 +23,7 @@ public class ClassImportTest {
         ImportClassThread clsIn = new ImportClassThread(classes,importer);
         Queue<Relation<OntClass, Words>> clsRels = rdfProvider.allClassRels();
         ImportClassRelThread clsRelIn = new ImportClassRelThread(clsRels,importer);
-        new Thread(clsIn).start();
-        new Thread(clsRelIn).start();
+        new Thread(clsIn).run();
+        new Thread(clsRelIn).run();
     }
 }
