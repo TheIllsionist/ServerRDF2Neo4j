@@ -17,7 +17,7 @@ import java.util.Queue;
  */
 public class PropertyImportTest {
     public static void main(String args[]) throws Exception {
-        RdfProvider rdfProvider = new FileRdfProvider("G:\\");
+        RdfProvider rdfProvider = new FileRdfProvider("/home/awakedreaming/Documents/");
         Queue<OntProperty> props = rdfProvider.allOntProperties();
         Queue<Relation<OntProperty,Words>> propRels = rdfProvider.allPropertyRels();
         PropertyImporter importer = new ApiPropertyImporter(SingleGraphInstance.getInstance());

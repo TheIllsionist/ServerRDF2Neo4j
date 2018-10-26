@@ -13,7 +13,7 @@ import java.io.File;
  */
 public class SingleGraphInstance {
 
-    private final static String dbDir = "E:\\Neo4j\\neo4j-community-3.4.9\\data\\databases\\ksedb.db"; //数据库实例文件夹的路径
+    private final static String dbDir = "/home/awakedreaming/Documents/Database/Neo4j/neo4j-community-3.3.3/data/databases/ksedb.db"; //数据库实例文件夹的路径
     private volatile static GraphDatabaseService graphDb = null;  //注意该引用一定要用volatile变量修饰
 
     public static GraphDatabaseService getInstance(){

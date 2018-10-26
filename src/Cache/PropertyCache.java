@@ -34,9 +34,9 @@ public class PropertyCache {
                 if(!propWithRels.containsKey(p)){
                     propWithRels.put(p,new ConcurrentHashMap<>());
                 }
-                String anop = tmpRes.get("anop").toString();
-                if(anop.equals("null"))
+                if(tmpRes.get("anop") == null || tmpRes.get("anop").equals("null"))
                     continue;
+                String anop = tmpRes.get("anop").toString();
                 propWithRels.get(p).put(anop,Integer.valueOf(tmpRes.get("tag").toString()));
             }
         }

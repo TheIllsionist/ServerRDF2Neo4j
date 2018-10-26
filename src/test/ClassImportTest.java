@@ -17,13 +17,13 @@ import java.util.Queue;
  */
 public class ClassImportTest {
     public static void main(String args[]) throws Exception {
-        RdfProvider rdfProvider = new FileRdfProvider("G:\\");
+        RdfProvider rdfProvider = new FileRdfProvider("/home/awakedreaming/Documents/");
         ClassImporter importer = new ApiClassImporter(SingleGraphInstance.getInstance());
         Queue<OntClass> classes = rdfProvider.allOntClasses();
         ImportClassThread clsIn = new ImportClassThread(classes,importer);
         Queue<Relation<OntClass, Words>> clsRels = rdfProvider.allClassRels();
         ImportClassRelThread clsRelIn = new ImportClassRelThread(clsRels,importer);
-        new Thread(clsIn).run();
-        new Thread(clsRelIn).run();
+        new Thread(clsIn).start();
+        new Thread(clsRelIn).start();
     }
 }

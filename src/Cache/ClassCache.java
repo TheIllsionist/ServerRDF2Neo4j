@@ -25,7 +25,7 @@ public class ClassCache {
             Result result = graphDb.execute("match(cls:OWL_CLASS) optional match(cls)-[r:RDFS_SUBCLASSOF|:EQUIVALENT_CLASS|:DISJOINT_CLASS]->(anoCls:OWL_CLASS) " +
                     "return cls.preLabel as cls, case r.preLabel when \"rdfs:subClassOf\" then 1 when \"owl:equivalentClass\" then 2 " +
                     " when \"owl:disjointWith\" then 3 end as tag,anoCls.preLabel as anoCls ");  //同样是执行查询,但是此时是在本机执行查询
-            tx.success();    //TODO:事务的提交位置不明确,暂时先放在这里
+            tx.success();     //TODO:事务的提交位置暂定此处
             Map<String, Object> tmpRes = null;
             while(result.hasNext()){
                 tmpRes = result.next();
@@ -35,9 +35,10 @@ public class ClassCache {
                 if(!classWithRels.containsKey(cls)){  //保证了第1个键的值不会被延迟初始化,避免"先检查后执行"竞态条件发生
                     classWithRels.put(cls,new ConcurrentHashMap<>());
                 }
-                String anoCls = tmpRes.get("anoCls").toString();
-                if(anoCls.equals("null"))
+                if(tmpRes.get("anoCls") == null || tmpRes.get("anoCls").toString().equals("null")){
                     continue;
+                }
+                String anoCls = tmpRes.get("anoCls").toString();
                 classWithRels.get(cls).put(anoCls,Integer.valueOf(tmpRes.get("tag").toString()));
             }
         }

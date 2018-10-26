@@ -32,7 +32,7 @@ public class ApiInsImporter implements InsImporter{
     static {
         try(Transaction tx = graphDb.beginTx()){
             Result result = graphDb.execute("match(obj:OWL_OBJECTPROPERTY),(ins1:OWL_NAMEDINDIVIDUAL)-[r]->(ins2:OWL_NAMEDINDIVIDUAL) " +
-                    " where r.preLabel = obj.preLabel return ins1.preLabel as fPre,r.preLabel as rel,ins2.preLabel as lPre");
+                    " where r.preLabel = obj.preLabel return ins1.preLabel as fPre,r.preLabel as rel,ins2.preLabel as lPre ");
             tx.success();  //TODO:提交事务的位置暂定此处
             Map<String,Object> tmpRes = null;
             while(result.hasNext()){
@@ -74,7 +74,7 @@ public class ApiInsImporter implements InsImporter{
                 insNode.addLabel(Label.label("OWL_NAMEDINDIVIDUAL"));
                 insNode.setProperty("uri",individual.getURI());
                 insNode.setProperty("preLabel",UriUtil.getPreLabel(individual.getURI()));
-                Relationship rel = insNode.createRelationshipTo(insNode,RelTypes.RDF_TYPE);
+                Relationship rel = insNode.createRelationshipTo(insWord,RelTypes.RDF_TYPE);
                 rel.setProperty("uri", RDF.type.getURI());
                 rel.setProperty("preLabel",UriUtil.getPreLabel(RDF.type.getURI()));
                 Iterator<RDFNode> labelNodes = individual.listLabels(null);  //该实例的所有rdfs:labels
@@ -110,7 +110,7 @@ public class ApiInsImporter implements InsImporter{
                             continue;
                         Node dpValNode = graphDb.createNode();
                         dpValNode.addLabel(Label.label("DP_VALUE"));
-                        dpValNode.setProperty("value",dpVals);
+                        dpValNode.setProperty("value",listToArray(dpVals));
                         Relationship tmpRel = insNode.createRelationshipTo(dpValNode, new RelationshipType() {
                             @Override
                             public String name() {
@@ -125,7 +125,7 @@ public class ApiInsImporter implements InsImporter{
                             dpLabels.add(dpLabelIter.next().toString());
                         }
                         if(dpLabels.size() > 0){  //如果该数据类型属性有rdfs:label集合
-                            tmpRel.setProperty("`rdfs:label`",dpLabels);
+                            tmpRel.setProperty("`rdfs:label`",listToArray(dpLabels));
                         }
                     }
                 }
@@ -145,7 +145,7 @@ public class ApiInsImporter implements InsImporter{
                 }
                 tx.success();
             }
-            InstanceCache.addIndividual(preLabel);
+            InstanceCache.addIndividual(preLabel); //写实例缓存
         }
         return true;
     }
@@ -281,7 +281,7 @@ public class ApiInsImporter implements InsImporter{
                     opLabels.add(opLabelIter.next().toString());
                 }
                 if(opLabels.size() > 0){
-                    relationship.setProperty("`rdfs:label`",opLabels);
+                    relationship.setProperty("`rdfs:label`",listToArray(opLabels));
                 }
                 relPreLabel = UriUtil.getPreLabel(property.getURI());
             }
@@ -294,6 +294,17 @@ public class ApiInsImporter implements InsImporter{
             relLock.writeLock().unlock();
         }
         return true;
+    }
+
+    private String[] listToArray(List<String> list){
+        if(list == null)
+            return null;
+        String[] strs = new String[list.size()];
+        int i = 0;
+        for (String str : list) {
+            strs[i++] = str;
+        }
+        return strs;
     }
 
 }
